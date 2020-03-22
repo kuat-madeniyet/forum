@@ -1,0 +1,46 @@
+*****************The DefaultServeMux***************************************
+Although this approach can make your code slightly shorter, I don’t
+recommend it for production applications.
+Because DefaultServeMux is a global variable, any package can access it
+and register a route — including any third-party packages that your
+application imports. If one of those third-party packages is compromised,
+they could use DefaultServeMux to expose a malicious handler to the
+web.
+So, for the sake of security, it’s generally a good idea to avoid
+DefaultServeMux and the corresponding helper functions. Use your own
+locally-scoped servemux instead, like we have been doing in this project
+so far.
+
+Host Name Matching
+It’s possible to include host names in your URL patterns. This can be
+useful when you want to redirect all HTTP requests to a canonical URL, or
+if your application is acting as the back end for multiple sites or services.
+For example:
+mux := http.NewServeMux()
+mux.HandleFunc("foo.example.org/", fooHandler)
+mux.HandleFunc("bar.example.org/", barHandler)
+mux.HandleFunc("/baz", bazHandler)
+
+Go’s servemux is pretty lightweight. It doesn’t support routing based on
+the request method, it doesn’t support semantic URLs with variables in
+them, and it doesn’t support regexp-based patterns.
+**************************************************************************
+
+If you don’t call w.WriteHeader() explicitly, then the first call to
+w.Write() will automatically send a 200 OK status code to the user.
+So, if you want to send a non-200 status code, you must call
+w.WriteHeader() before any call to w.Write().
+
+The http.DetectContentType() function generally works quite well, but
+a common gotcha for web developers new to Go is that it can’t
+distinguish JSON from plain text. And, by default, JSON responses will be
+sent with a Content-Type: text/plain; charset=utf-8 header. You
+can prevent this from happening by setting the correct header manually
+like so:
+w.Header().Set("Content-Type", "application/json")
+w.Write([]byte(`{"name":"Alex"}`))
+
+***************************************************************************
+Here we’re using the {{define "base"}}...{{end}} action to define a
+distinct named template called base, which contains the content we want
+to appear on every page.
